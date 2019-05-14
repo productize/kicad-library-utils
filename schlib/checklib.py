@@ -23,7 +23,7 @@ from glob import glob
 
 parser = argparse.ArgumentParser(description='Checks KiCad library files (.lib) against KiCad Library Convention (KLC) rules. You can find the KLC at http://kicad-pcb.org/libraries/klc/')
 parser.add_argument('libfiles', nargs='+')
-parser.add_argument('-c', '--component', help='check only a specific component (implicitly verbose)', action='store')
+parser.add_argument('-c', '--component', help='Check only one or more specific component(s) (implicitly verbose). Use comma separated values to select multiple components', action='store')
 parser.add_argument('-p', '--pattern', help='Check multiple components by matching a regular expression', action='store')
 parser.add_argument('-r','--rule',help='Select a particular rule (or rules) to check against (default = all rules). Use comma separated values to select multiple rules. e.g. "-r 3.1,EC02"')
 parser.add_argument('-e','--exclude',help='Exclude a particular rule (or rules) to check against. Use comma separated values to select multiple rules. e.g. "-e 3.1,EC02"')
@@ -56,6 +56,11 @@ if args.exclude:
     excluded_rules = args.exclude.split(',')
 else:
     excluded_rules = None
+
+if args.component:
+    components = args.component.lower().split(',')
+else:
+    components = None
 
 rules = []
 
@@ -105,8 +110,8 @@ for libfile in libfiles:
 
         #simple match
         match = True
-        if args.component:
-            match = match and args.component.lower() == component.name.lower()
+        if components:
+            match = match and component.name.lower() in components
 
         #regular expression match
         if args.pattern:
